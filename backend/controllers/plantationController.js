@@ -1,66 +1,69 @@
-const Plantation = require('../../models/plantationModel');
-const ErrorHandler = require('../../utils/errorHandler');
-const catchAsyncErrors = require('../../middlewares/catchAsyncErrors');
+import Plantation from '../models/plantationModel.js'; // Modèle Mongoose
 
-// Create Plantation
-exports.createPlantation = catchAsyncErrors(async (req, res) => {
-  req.body.user = req.user.id;
-  const plantation = await Plantation.create(req.body);
-  res.status(201).json({ success: true, plantation });
-});
-
-// Get all Plantations
-exports.getAllPlantations = catchAsyncErrors(async (req, res, next) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    const plantations = await Plantation.find().skip(skip).limit(limit);
-
-    if (!plantations || plantations.length === 0) {
-      throw new ErrorHandler('Plantation non trouvée', 404);
+// Créer une nouvelle plantation (POST)
+const createPlantation = async (req, res) => {
+    try {
+        const plantation = new Plantation(req.body);
+        await plantation.save();
+        res.status(201).json(plantation);
+    } catch (error) {
+        res.status(400).json({ message: 'Erreur lors de la création de la plantation', error });
     }
+};
 
-    res.status(200).json({ success: true, plantations });
-  } catch (error) {
-    next(error);
-  }
-});
+// Obtenir toutes les plantations (GET)
+const getAllPlantations = async (req, res) => {
+    try {
+        const plantations = await Plantation.find();
+        res.status(200).json(plantations);
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la récupération des plantations', error });
+    }
+};
 
-// Get Plantation by ID
-exports.getPlantationById = catchAsyncErrors(async (req, res, next) => {
-  const plantation = await Plantation.findById(req.params.id);
+// Obtenir une plantation par ID (GET)
+const getPlantationById = async (req, res) => {
+    try {
+        const plantation = await Plantation.findById(req.params.id);
+        if (!plantation) {
+            return res.status(404).json({ message: 'Plantation non trouvée' });
+        }
+        res.status(200).json(plantation);
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la récupération de la plantation', error });
+    }
+};
 
-  if (!plantation) {
-    throw new ErrorHandler('Plantation non trouvée', 404);
-  }
+// Mettre à jour une plantation par ID (PUT / PATCH)
+const updatePlantationById = async (req, res) => {
+    try {
+        const plantation = await Plantation.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        if (!plantation) {
+            return res.status(404).json({ message: 'Plantation non trouvée' });
+        }
+        res.status(200).json(plantation);
+    } catch (error) {
+        res.status(400).json({ message: 'Erreur lors de la mise à jour de la plantation', error });
+    }
+};
 
-  res.status(200).json({ success: true, plantation });
-});
+// Supprimer une plantation par ID (DELETE)
+const deletePlantationById = async (req, res) => {
+    try {
+        const plantation = await Plantation.findByIdAndDelete(req.params.id);
+        if (!plantation) {
+            return res.status(404).json({ message: 'Plantation non trouvée' });
+        }
+        res.status(200).json({ message: 'Plantation supprimée' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la suppression de la plantation', error });
+    }
+};
 
-// Update Plantation
-exports.updatePlantation = catchAsyncErrors(async (req, res, next) => {
-  const plantation = await Plantation.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-    useFindAndModify: false,
-  });
-
-  if (!plantation) {
-    throw new ErrorHandler('Plantation non trouvée', 404);
-  }
-
-  res.status(200).json({ success: true, plantation });
-});
-
-// Delete Plantation
-exports.deletePlantation = catchAsyncErrors(async (req, res, next) => {
-  const plantation = await Plantation.findByIdAndDelete(req.params.id);
-
-  if (!plantation) {
-    throw new ErrorHandler('Plantation non trouvée', 404);
-  }
-
-  res.status(200).json({ success: true, message: 'Plantation supprimée avec succès!' });
-});
+export default {
+    createPlantation,
+    getAllPlantations,
+    getPlantationById,
+    updatePlantationById,
+    deletePlantationById
+};

@@ -1,19 +1,28 @@
-// models/Plantation.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const plantationSchema = new mongoose.Schema({
-  plot: {
-    type: String,
-    required: true
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  },
-  survivalRate: {
-    type: Number,
-    default: 100
-  }
-}, { timestamps: true });
+    nom: {
+        type: String,
+        required: true
+    },
+    emplacement: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: String,
+        required: true
+    },
+    superficie: {
+        type: Number,
+        required: true
+    },
+    datePlantation: {
+        type: Date,
+        default: Date.now
+    }
+});
 
-module.exports = mongoose.model('Plantation', plantationSchema);
+const Plantation = mongoose.model('Plantation', plantationSchema);
+
+export default Plantation;

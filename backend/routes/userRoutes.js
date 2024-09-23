@@ -9,4 +9,7 @@ router.get('/profile', isAuthenticatedUser, (req, res) => {
     });
 });
 
+router.patch('/update/:id', updateUser);
+router.delete('/delete/:id', deleteUser);
+
 module.exports = router;

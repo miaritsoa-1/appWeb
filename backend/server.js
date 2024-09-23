@@ -1,15 +1,36 @@
-const dotenv = require('dotenv');
-const connectDatabase = require('./config/database');
+import mongoose from 'mongoose';
+import express from 'express';
+import plantationRoutes from './routes/plantationRoutes.js'; // Corrigé pour inclure le fichier routes
 
-// Load environment variables
-dotenv.config({ path: './config/config.env' });
+const app = express();
 
-// Connect to database
-connectDatabase();
+// Middleware pour utiliser JSON
+app.use(express.json());
 
-const app = require('./app');
+// Middleware pour gérer les en-têtes CORS
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+        return res.status(200).json({});
+    }
+    next();
+});
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Connexion à MongoDB
+mongoose.connect('mongodb://localhost:27017/mangrove')
+.then(() => {
+    console.log('MongoDB connected');
+})
+.catch((error) => {
+    console.error('MongoDB connection error:', error);
+});
+
+// Utilisation de la route plantation
+app.use('/api/v1/plantation', plantationRoutes); // Assurez-vous que le fichier routes est correct
+
+// Démarrage du serveur
+app.listen(5000, () => {
+    console.log('Server is running on port 5000');
 });

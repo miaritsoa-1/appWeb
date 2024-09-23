@@ -1,37 +1,14 @@
-const express = require('express');
-const { authorizeRoles, isAuthenticatedUser } = require('../../middlewares/auth');
+import express from 'express';
+import plantationController from '../controllers/plantationController.js'; // Corrigez le chemin si nécessaire
+
 const router = express.Router();
 
-// Importez Multer pour les uploads
-const multer = require('multer');
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/uploads/plantations');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-const upload = multer({ storage: storage });
+// Définition des routes CRUD pour Plantation
+router.post('/', plantationController.createPlantation);
+router.get('/', plantationController.getAllPlantations);
+router.get('/:id', plantationController.getPlantationById);
+router.put('/:id', plantationController.updatePlantationById);
+router.patch('/:id', plantationController.updatePlantationById);
+router.delete('/:id', plantationController.deletePlantationById);
 
-const {
-  getAllPlantations,
-  getPlantationById,
-  createPlantation,
-  updatePlantation,
-  deletePlantation,
-} = require('../../controllers/agriculture/plantationController');
-
-router.route('/plantation').post(createPlantation);
-
-router.route('/plantations').get(getAllPlantations);
-router.route('/plantation/:id').get(getPlantationById);
-router.route('/plantation/:id').put(updatePlantation);
-router.route('/plantation/:id').delete(deletePlantation);
-
-// Routes administratives
-router
-  .route('/admin/plantation/:id')
-  .put(isAuthenticatedUser, authorizeRoles('admin'), updatePlantation);
-
-module.exports = router;
+export default router;
