@@ -1,16 +1,26 @@
-const express = require('express');
+import express from 'express';
+import { createStock, getAllStocks, getStockById, updateStockById, deleteStockById } from '../controllers/stockController.js';
+
 const router = express.Router();
-const multer = require('multer');
-const { getAllStocks, getStockById, createStock, updateStock, deleteStock} = require('../../controllers/commerce/stockController');
 
+router.post('/', createStock);
+router.get('/', getAllStocks);
+router.get('/:id', getStockById);
+router.put('/:id', updateStockById);
+router.delete('/:id', deleteStockById);
 
-const upload = multer({ storage: storage });
-
-router.get('/', getStock); 
-router.post('/', createStock); 
-router.get('/:id', getStockById); 
-router.patch('/:id', updateStock); 
-router.delete('/:id', deleteStock); 
 export default router;
 
-// module.exports = router;
+
+// Dans stockRoutes.js
+module.exports = (app) => {
+    app.post('/api/create-stock', (req, res) => {
+      console.log('Reçu une requête POST sur /api/create-stock');
+      stockController.createStock(req, res);
+    });
+  };
+  
+  // Puis dans app.js
+  require('./routes/stockRoutes')(app);
+  const stockController = require('./controllers/stockController');
+  
